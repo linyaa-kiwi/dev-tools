@@ -1,0 +1,39 @@
+#!/usr/bin/env zsh
+
+set -eu
+
+: ${MESA_SRC_DIR:=$(pwd)}
+: ${MESA_BUILD_DIR:=$MESA_SRC_DIR}
+
+configure_opts=(
+    CFLAGS="-g3 -O0"
+    CXXFLAGS="-g3 -O0"
+    --enable-dri3
+    --disable-gallium-egl
+    --disable-osmesa
+    --disable-vdpau
+    --disable-xa
+    --disable-debug
+    --enable-dri
+    --enable-egl
+    --enable-gbm
+    --enable-gles1
+    --enable-gles2
+    --enable-glx
+    --enable-glx-tls
+    --enable-shared-glapi
+    --enable-texture-float
+    --with-dri-drivers=i965
+    --with-egl-platforms=x11,drm,wayland
+    --with-gallium-drivers=
+)
+
+if ! [[ -e "$MESA_SRC_DIR/configure" ]]; then
+    (
+        cd "$MESA_SRC_DIR"
+        autoreconf -vfi
+    )
+fi
+
+cd "$MESA_BUILD_DIR"
+"$MESA_SRC_DIR/configure" "${configure_opts[@]}"
