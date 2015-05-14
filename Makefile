@@ -4,7 +4,9 @@ bindir = $(prefix)/bin
 
 BINS := \
     bin/mesa-configure \
-    bin/mesa-env
+    bin/mesa-env \
+    bin/prefix-env \
+    $@
 
 .PHONY: all
 all:

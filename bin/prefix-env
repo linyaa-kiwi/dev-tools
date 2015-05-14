@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+
+PREFIX = os.environ.get('PREFIX', os.getcwd())
+
+def prepend_list(env, name, elem):
+    old_list = env.get(name, None)
+
+    if old_list is None:
+        env[name] = elem
+    else:
+        env[name] = elem + ':' + old_list
+
+def main():
+    env = os.environ.copy()
+
+    # runtime paths
+    prepend_list(env, 'PATH', os.path.join(PREFIX, 'bin'))
+    prepend_list(env, 'LD_LIBRARY_PATH', os.path.join(PREFIX, 'lib'))
+    prepend_list(env, 'LIBGL_DRIVERS_PATH', os.path.join(PREFIX, 'lib'))
+    prepend_list(env, 'EGL_DRIVERS_PATH', os.path.join(PREFIX, 'lib'))
+
+    # buildtime paths
+    prepend_list(env, 'CPATH', os.path.join(PREFIX, 'include'))
+    prepend_list(env, 'LIBRARY_PATH', os.path.join(PREFIX, 'lib'))
+    prepend_list(env, 'PKG_CONFIG_PATH', os.path.join(PREFIX, 'lib/pkgconfig'))
+    prepend_list(env, 'PKG_CONFIG_PATH', os.path.join(PREFIX, 'share/pkgconfig'))
+
+    args = sys.argv[1:]
+    if len(args) == 0:
+        args = ['env']
+
+    os.execvpe(args[0], args, env=env)
+
+if __name__ == '__main__':
+    main()
