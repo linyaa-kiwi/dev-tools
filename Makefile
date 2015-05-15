@@ -1,6 +1,6 @@
-DESTDIR =
-prefix = $(HOME)/.local
-bindir = $(prefix)/bin
+DESTDIR ?=
+prefix ?= $(HOME)/.local
+bindir ?= $(prefix)/bin
 
 BINS := \
     bin/libdrm-configure \
