@@ -1,5 +1,5 @@
 DESTDIR ?=
-prefix ?= $(HOME)/.local
+prefix ?= $(HOME)
 bindir ?= $(prefix)/bin
 
 BINS := \
