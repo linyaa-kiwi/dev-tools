@@ -2,6 +2,8 @@ DESTDIR ?=
 prefix ?= $(HOME)
 bindir ?= $(prefix)/bin
 
+-include config.mk
+
 BINS := \
     bin/libdrm-configure \
     bin/libdrm-env \
