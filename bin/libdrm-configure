@@ -1,0 +1,27 @@
+#!/usr/bin/env zsh
+
+set -eu
+
+: ${LIBDRM_SRC_DIR:=$(pwd)}
+: ${LIBDRM_BUILD_DIR:=$LIBDRM_SRC_DIR}
+
+configure_opts=(
+    CFLAGS="-g3 -O0"
+    CXXFLAGS="-g3 -O0"
+
+    --disable-libkms
+    --enable-intel
+    --disable-radeon
+    --disable-nouveau
+    --disable-vmwgfx
+)
+
+if ! [[ -e "$LIBDRM_SRC_DIR/configure" ]]; then
+    (
+        cd "$LIBDRM_SRC_DIR"
+        autoreconf -vfi
+    )
+fi
+
+cd "$LIBDRM_BUILD_DIR"
+"$LIBDRM_SRC_DIR/configure" "${configure_opts[@]}" "$@"
