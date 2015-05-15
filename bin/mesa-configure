@@ -36,4 +36,4 @@ if ! [[ -e "$MESA_SRC_DIR/configure" ]]; then
 fi
 
 cd "$MESA_BUILD_DIR"
-"$MESA_SRC_DIR/configure" "${configure_opts[@]}"
+"$MESA_SRC_DIR/configure" "${configure_opts[@]}" "$@"
