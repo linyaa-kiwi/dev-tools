@@ -19,7 +19,7 @@ def main():
     # runtime paths
     prepend_list(env, 'PATH', os.path.join(PREFIX, 'bin'))
     prepend_list(env, 'LD_LIBRARY_PATH', os.path.join(PREFIX, 'lib'))
-    prepend_list(env, 'LIBGL_DRIVERS_PATH', os.path.join(PREFIX, 'lib'))
+    prepend_list(env, 'LIBGL_DRIVERS_PATH', os.path.join(PREFIX, 'lib/dri'))
     prepend_list(env, 'EGL_DRIVERS_PATH', os.path.join(PREFIX, 'lib'))
 
     # buildtime paths
