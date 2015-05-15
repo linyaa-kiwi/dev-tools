@@ -23,6 +23,7 @@ def main():
     prepend_list(env, 'EGL_DRIVERS_PATH', os.path.join(PREFIX, 'lib'))
 
     # buildtime paths
+    prepend_list(env, 'ACLOCAL_PATH', os.path.join(PREFIX, 'share/aclocal'))
     prepend_list(env, 'CPATH', os.path.join(PREFIX, 'include'))
     prepend_list(env, 'LIBRARY_PATH', os.path.join(PREFIX, 'lib'))
     prepend_list(env, 'PKG_CONFIG_PATH', os.path.join(PREFIX, 'lib/pkgconfig'))
