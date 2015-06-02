@@ -1,39 +1,187 @@
 #!/usr/bin/env python3
 
+import argparse
 import os
+import os.path
+import shlex
 import sys
 
-PREFIX = os.environ.get('PREFIX', os.getcwd())
+from io import StringIO
+from sys import exit, stdout, stderr
+from textwrap import dedent
 
-def prepend_list(env, name, elem):
-    old_list = env.get(name, None)
+PROG = os.path.basename(sys.argv[0])
 
-    if old_list is None:
-        env[name] = elem
-    else:
-        env[name] = elem + ':' + old_list
+class Env(dict):
 
-def main():
-    env = os.environ.copy()
+    def __init__(self, orig_env=None):
+        dict.__init__(self)
+
+        if orig_env is None:
+            self.update(os.environ)
+        else:
+            self.update(orig_env)
+
+        self.updated_vars = set()
+
+    def prepend_list(self, name, elem):
+        old_list = self.get(name, None)
+
+        if old_list is None:
+            self[name] = elem
+        else:
+            self[name] = elem + ':' + old_list
+
+        self.updated_vars.add(name)
+
+class Command:
+
+    def format_help(self):
+        raise NotImplementedError
+
+    def usage_error(self, msg):
+        print('{}-{}: usage error: {}'.format(PROG, self.name, msg),
+              file=stderr)
+        exit(129)
+
+    def run(self, prefix, args):
+        raise NotImplementedError
+
+class HelpCommand(Command):
+
+    name = 'help'
+    need_prefix = False
+
+    def format_help(self):
+        return "usage: {} {} [topic]\n".format(PROG, self.name)
+
+    def run(self, prefix, args):
+        if len(args) == 0:
+            stdout.write(self.__format_main_help())
+        elif args[0].startswith('-'):
+            self.usage_error('unknown option {!r}'.format(args[0]))
+        else:
+            cmd_name = args[0]
+            cmd = cmd_table.get(cmd_name, None)
+            if cmd is None:
+                self.error('unknown command {!r}'.format(cmd_name))
+            stdout.write(cmd.format_help())
+
+    def __format_main_help(self):
+        buf = StringIO()
+        buf.write(dedent("""\
+            usage: {prog} <command> [args...]
+
+            commands:
+            """.format(prog=PROG)))
+
+        for cmd_name in cmd_table.keys():
+            buf.write("    {}\n".format(cmd_name))
+
+        return buf.getvalue()
+
+class ExecCommand(Command):
+
+    name = 'exec'
+    need_prefix = True
+
+    def format_help(self):
+        return dedent("""\
+            usage:
+                {prog} {name}
+                {prog} {name} [args]
+            """.format(prog=PROG, name=self.name))
+
+    def run(self, prefix, args):
+        if len(args) == 0:
+            args = ['env']
+        if args[0].startswith('-'):
+            self.usage_error('unknown option {!r}'.format(args[0]))
+
+        env = make_env(prefix)
+        os.execvpe(args[0], args, env=env)
+
+class EvalCommand(Command):
+
+    name = 'eval'
+    need_prefix = True
+
+    def format_help(self):
+        return "usage: {prog} {name}\n".format(prog=PROG, name=self.name)
+
+    def run(self, prefix, args):
+
+        def parse_args():
+            if len(args) > 0:
+                usage_error('trailing args: {}'.format(args))
+
+        parse_args()
+        env = make_env(prefix)
+
+        for var in sorted(env.updated_vars):
+            print('{}={};'.format(var, shlex.quote(env[var])))
+            print('export {};'.format(var))
+
+def make_env(prefix):
+    env = Env()
 
     # runtime paths
-    prepend_list(env, 'PATH', os.path.join(PREFIX, 'bin'))
-    prepend_list(env, 'LD_LIBRARY_PATH', os.path.join(PREFIX, 'lib'))
-    prepend_list(env, 'LIBGL_DRIVERS_PATH', os.path.join(PREFIX, 'lib/dri'))
-    prepend_list(env, 'EGL_DRIVERS_PATH', os.path.join(PREFIX, 'lib'))
+    env.prepend_list('PATH', os.path.join(prefix, 'bin'))
+    env.prepend_list('LD_LIBRARY_PATH', os.path.join(prefix, 'lib'))
+    env.prepend_list('LIBGL_DRIVERS_PATH', os.path.join(prefix, 'lib/dri'))
+    env.prepend_list('EGL_DRIVERS_PATH', os.path.join(prefix, 'lib'))
 
     # buildtime paths
-    prepend_list(env, 'ACLOCAL_PATH', os.path.join(PREFIX, 'share/aclocal'))
-    prepend_list(env, 'CPATH', os.path.join(PREFIX, 'include'))
-    prepend_list(env, 'LIBRARY_PATH', os.path.join(PREFIX, 'lib'))
-    prepend_list(env, 'PKG_CONFIG_PATH', os.path.join(PREFIX, 'lib/pkgconfig'))
-    prepend_list(env, 'PKG_CONFIG_PATH', os.path.join(PREFIX, 'share/pkgconfig'))
+    env.prepend_list('ACLOCAL_PATH', os.path.join(prefix, 'share/aclocal'))
+    env.prepend_list('CPATH', os.path.join(prefix, 'include'))
+    env.prepend_list('LIBRARY_PATH', os.path.join(prefix, 'lib'))
+    env.prepend_list('PKG_CONFIG_PATH', os.path.join(prefix, 'lib/pkgconfig'))
+    env.prepend_list('PKG_CONFIG_PATH', os.path.join(prefix, 'share/pkgconfig'))
 
-    args = sys.argv[1:]
-    if len(args) == 0:
-        args = ['env']
+    return env
 
-    os.execvpe(args[0], args, env=env)
+cmd_list = [
+    ExecCommand(),
+    EvalCommand(),
+    HelpCommand(),
+]
+
+cmd_table = {
+    cmd.name: cmd
+    for cmd in cmd_list
+}
+
+def main():
+
+    def parse_args():
+        p = argparse.ArgumentParser()
+        p.add_argument('-P', '--prefix')
+        p.add_argument('remainder', nargs=argparse.REMAINDER)
+
+        args = p.parse_args()
+
+        # Set prefix.
+        prefix = args.prefix
+        if prefix is None:
+            prefix = os.environ.get('PREFIX', None)
+        if prefix is None:
+            prefix = os.getcwd()
+
+        cmd_name = 'help'
+        cmd_args = []
+
+        if len(args.remainder) > 0:
+            cmd_name = args.remainder[0]
+            cmd_args = args.remainder[1:]
+
+        cmd = cmd_table.get(cmd_name, None)
+        if cmd is None:
+            usage_error('unknown command {!r}'.format(cmd_name))
+
+        return (cmd, cmd_args, prefix)
+
+    (cmd, cmd_args, prefix) = parse_args()
+    cmd.run(prefix, cmd_args)
 
 if __name__ == '__main__':
     main()
