@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -eu
+
+prog="${0##*/}"
+
+die() {
+    printf >&2 "%s\n" "$prog: error: $@"
+    exit 1
+}
+
+if ! [[ -v PREFIX ]]; then
+    die "env var PREFIX is unset"
+fi
+
+cmake_opts=(
+    -GNinja
+    -DCMAKE_BUILD_TYPE=Debug
+    -DCMAKE_INSTALL_PREFIX="$PREFIX"
+    -Dwaffle_build_examples=1
+    -Dwaffle_build_htmldocs=1
+    -Dwaffle_build_manpages=1
+    "$@"
+)
+
+cmake "${cmake_opts[@]}" .
