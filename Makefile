@@ -10,7 +10,7 @@ BINS := \
     bin/mesa-configure \
     bin/mesa-env \
     bin/prefix-env \
-    bin/waffle-config \
+    bin/waffle-configure \
     $@
 
 .PHONY: all
