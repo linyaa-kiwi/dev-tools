@@ -11,31 +11,35 @@ use() {
     [[ ",${USE}," = *,$1,* ]]
 }
 
-configure_opts=(
-    --enable-libkms
-    --enable-intel
-    --disable-radeon
-    --disable-nouveau
-    --disable-vmwgfx
-)
-
-if use debug; then
-    configure_opts+=(
-        "CFLAGS=-g3 -O0"
-        "CXXFLAGS=-g3 -O0"
+configure() {
+    configure_opts=(
+        --enable-libkms
+        --enable-intel
+        --disable-radeon
+        --disable-nouveau
+        --disable-vmwgfx
     )
-fi
 
-if [[ "$PREFIX" ]]; then
-    configure_opts+=("--prefix=$PREFIX")
-fi
+    if use debug; then
+        configure_opts+=(
+            "CFLAGS=-g3 -O0"
+            "CXXFLAGS=-g3 -O0"
+        )
+    fi
 
-if ! [[ -e "$LIBDRM_SRC_DIR/configure" ]]; then
-    (
-        cd "$LIBDRM_SRC_DIR"
-        autoreconf -vfi
-    )
-fi
+    if [[ "$PREFIX" ]]; then
+        configure_opts+=("--prefix=$PREFIX")
+    fi
 
-cd "$LIBDRM_BUILD_DIR"
-"$LIBDRM_SRC_DIR/configure" "${configure_opts[@]}" "$@"
+    if ! [[ -e "$LIBDRM_SRC_DIR/configure" ]]; then
+        (
+            cd "$LIBDRM_SRC_DIR"
+            autoreconf -vfi
+        )
+    fi
+
+    cd "$LIBDRM_BUILD_DIR"
+    "$LIBDRM_SRC_DIR/configure" "${configure_opts[@]}" "$@"
+}
+
+configure "$@"

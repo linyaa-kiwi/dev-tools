@@ -32,44 +32,48 @@ use_enable() {
     fi
 }
 
-configure_opts=(
-    --enable-dri3
-    --disable-gallium-egl
-    --disable-osmesa
-    --disable-vdpau
-    --disable-xa
-    --enable-dri
-    --enable-egl
-    --enable-gbm
-    --enable-gles1
-    --enable-gles2
-    --enable-glx
-    --enable-glx-tls
-    --enable-shared-glapi
-    --enable-texture-float
-    --with-dri-drivers=i965
-    --with-egl-platforms=x11,drm,wayland
-    --with-gallium-drivers=
-    $(use_enable debug)
-)
-
-if use debug; then
-    configure_opts+=(
-        "CFLAGS=-g3 -O0"
-        "CXXFLAGS=-g3 -O0"
+configure() {
+    local configure_opts=(
+        --enable-dri3
+        --disable-gallium-egl
+        --disable-osmesa
+        --disable-vdpau
+        --disable-xa
+        --enable-dri
+        --enable-egl
+        --enable-gbm
+        --enable-gles1
+        --enable-gles2
+        --enable-glx
+        --enable-glx-tls
+        --enable-shared-glapi
+        --enable-texture-float
+        --with-dri-drivers=i965
+        --with-egl-platforms=x11,drm,wayland
+        --with-gallium-drivers=
+        $(use_enable debug)
     )
-fi
 
-if [[ "$PREFIX" ]]; then
-    configure_opts+=("--prefix=$PREFIX")
-fi
+    if use debug; then
+        configure_opts+=(
+            "CFLAGS=-g3 -O0"
+            "CXXFLAGS=-g3 -O0"
+        )
+    fi
 
-if ! [[ -e "$MESA_SRC_DIR/configure" ]]; then
-    (
-        cd "$MESA_SRC_DIR"
-        autoreconf -vfi
-    )
-fi
+    if [[ "$PREFIX" ]]; then
+        configure_opts+=("--prefix=$PREFIX")
+    fi
 
-cd "$MESA_BUILD_DIR"
-"$MESA_SRC_DIR/configure" "${configure_opts[@]}" "$@"
+    if ! [[ -e "$MESA_SRC_DIR/configure" ]]; then
+        (
+            cd "$MESA_SRC_DIR"
+            autoreconf -vfi
+        )
+    fi
+
+    cd "$MESA_BUILD_DIR"
+    "$MESA_SRC_DIR/configure" "${configure_opts[@]}" "$@"
+}
+
+configure "$@"
