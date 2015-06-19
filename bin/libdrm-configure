@@ -34,7 +34,7 @@ configure() {
     if ! [[ -e "$LIBDRM_SRC_DIR/configure" ]]; then
         (
             cd "$LIBDRM_SRC_DIR"
-            autoreconf -vfi
+            NOCONFIGURE=1 ./autogen.sh
         )
     fi
 
