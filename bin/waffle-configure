@@ -17,6 +17,7 @@ cmake_opts=(
     -GNinja
     -DCMAKE_BUILD_TYPE=Debug
     -DCMAKE_INSTALL_PREFIX="$PREFIX"
+    -DCMAKE_INSTALL_LIBDIR='lib'
     -Dwaffle_build_examples=1
     -Dwaffle_build_htmldocs=1
     -Dwaffle_build_manpages=1
