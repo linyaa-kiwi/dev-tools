@@ -4,14 +4,12 @@ set -eu
 
 prog="${0##*/}"
 
+: ${PREFIX:=}
+
 die() {
     printf >&2 "%s\n" "$prog: error: $@"
     exit 1
 }
-
-if ! [[ -v PREFIX ]]; then
-    die "env var PREFIX is unset"
-fi
 
 cmake_opts=(
     -GNinja
@@ -23,5 +21,9 @@ cmake_opts=(
     -Dwaffle_build_manpages=1
     "$@"
 )
+
+if [[ "$PREFIX" ]]; then
+    cmake_opts+=("-DCMAKE_INSTALL_PREFIX=$PREFIX")
+fi
 
 cmake "${cmake_opts[@]}" .

@@ -2,6 +2,7 @@
 
 set -eu
 
+: ${PREFIX:=}
 : ${LIBDRM_SRC_DIR:=$(pwd)}
 : ${LIBDRM_BUILD_DIR:=$LIBDRM_SRC_DIR}
 
@@ -15,6 +16,10 @@ configure_opts=(
     --disable-nouveau
     --disable-vmwgfx
 )
+
+if [[ "$PREFIX" ]]; then
+    configure_opts+=("--prefix=$PREFIX")
+fi
 
 if ! [[ -e "$LIBDRM_SRC_DIR/configure" ]]; then
     (
