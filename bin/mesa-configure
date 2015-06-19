@@ -4,6 +4,7 @@ set -eu
 
 : ${PREFIX:=}
 : ${USE:=}
+: ${USE_EGL_PLATFORMS:=x11,drm,wayland,surfaceless}
 : ${MESA_SRC_DIR:=$(pwd)}
 : ${MESA_BUILD_DIR:=$MESA_SRC_DIR}
 
@@ -49,7 +50,7 @@ configure() {
         --enable-shared-glapi
         --enable-texture-float
         --with-dri-drivers=i965
-        --with-egl-platforms=x11,drm,wayland
+        --with-egl-platforms="$USE_EGL_PLATFORMS"
         --with-gallium-drivers=
         $(use_enable debug)
     )
