@@ -12,7 +12,7 @@ use() {
 }
 
 configure_opts=(
-    --disable-libkms
+    --enable-libkms
     --enable-intel
     --disable-radeon
     --disable-nouveau
