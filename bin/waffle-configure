@@ -2,18 +2,22 @@
 
 set -eu
 
-prog="${0##*/}"
-
 : ${PREFIX:=}
+: ${USE:=}
+
+prog="${0##*/}"
 
 die() {
     printf >&2 "%s\n" "$prog: error: $@"
     exit 1
 }
 
+use() {
+    [[ ",${USE}," = *,$1,* ]]
+}
+
 cmake_opts=(
     -GNinja
-    -DCMAKE_BUILD_TYPE=Debug
     -DCMAKE_INSTALL_PREFIX="$PREFIX"
     -DCMAKE_INSTALL_LIBDIR='lib'
     -Dwaffle_build_examples=1
@@ -21,6 +25,10 @@ cmake_opts=(
     -Dwaffle_build_manpages=1
     "$@"
 )
+
+if use debug; then
+    cmake_opts+=("-DCMAKE_BUILD_TYPE=Debug")
+fi
 
 if [[ "$PREFIX" ]]; then
     cmake_opts+=("-DCMAKE_INSTALL_PREFIX=$PREFIX")
