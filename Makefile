@@ -7,6 +7,7 @@ bindir ?= $(prefix)/bin
 BINS := \
     libdrm-configure \
     mesa-configure \
+    piglit-configure \
     prefix-env \
     waffle-configure \
     $@
