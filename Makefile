@@ -1,6 +1,6 @@
-DESTDIR ?=
-prefix ?= $(HOME)
-bindir ?= $(prefix)/bin
+DESTDIR =
+prefix = $(HOME)
+bindir = $(prefix)/bin
 
 -include config.mk
 

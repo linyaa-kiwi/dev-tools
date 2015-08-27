@@ -1,1 +1,1 @@
-prefix := $(HOME)/opt/stuff
+prefix = $(HOME)/opt/stuff
