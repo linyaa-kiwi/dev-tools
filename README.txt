@@ -19,7 +19,3 @@ Then build and install:
 
     $ make
     $ make install
-
-Don't like it? Then uninstall:
-
-    $ make uninstall

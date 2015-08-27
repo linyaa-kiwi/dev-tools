@@ -29,25 +29,52 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import re
 import sys
+from importlib import import_module
 
-import chadv_dev_tools as dev
+PROG_NAME = os.path.basename(sys.argv[0])
 
-class LibDrmPkg(dev.AutotoolsPkg):
+# This gets rewritten during installation.
+py_pkg_root = '@PYTHON_PKG_ROOT@'
 
-    @property
-    def default_use_flags(self):
-        return super().default_use_flags + self.__USE
+if py_pkg_root == '@' 'PYTHON_PKG_ROOT' '@':
+    # This script is not installed.
+    py_pkg_root = '../lib'
 
-    @property
-    def configure_args(self):
-        return super().configure_args + [
-            '--enable-libkms',
-            '--enable-intel',
-            '--disable-radeon',
-            '--disable-nouveau',
-            '--disable-vmwgfx',
-        ]
+if not os.path.isabs(py_pkg_root):
+    py_pkg_root = os.path.join(os.path.dirname(os.path.realpath(__file__)), py_pkg_root)
+    py_pkg_root = os.path.abspath(py_pkg_root)
 
-if __name__ == '__main__':
-    LibDrmPkg().configure(sys.argv[1:])
+sys.path.insert(0, py_pkg_root)
+
+def err(msg):
+    print("{0}: error: {1}".format(PROG_NAME, msg), file=sys.stderr)
+
+def die_import_error(exception, mod_name):
+    err(exception)
+    err("failed to import module {}".format(mod_name))
+    err("expected to find {} in directory {!r}".format(mod_name, py_pkg_root))
+    err("check your installation and PYTHONPATH")
+    sys.exit(1)
+
+try:
+    import chadv_dev_tools
+except ImportError as e:
+    die_import_error(e, 'chadv_dev_tools')
+
+m = re.match(r'(.*)-configure', PROG_NAME)
+if m is None:
+    err('unknown executable name')
+    exit(1)
+
+mod_name = m.group(1)
+mod_absname = 'chadv_dev_tools.' + mod_name
+
+try:
+    mod = import_module(mod_absname)
+except ImportError as e:
+    die_import_error(e, mod_absname)
+
+# TODO: Support more commands than 'configure'.
+mod.Pkg().configure(sys.argv[1:])

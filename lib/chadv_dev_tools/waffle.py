@@ -26,66 +26,25 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-.DEFAULT_GOAL := all
+import os
 
-DESTDIR =
-prefix = $(HOME)
-bindir = $(prefix)/bin
-libdir = $(prefix)/lib
+import chadv_dev_tools as dev
 
-PYTHON3 = python3
-PYTHON3_VERSION = $(shell $(PYTHON3) make/print-python-version.py)
-PYTHON_PKG_ROOT = $(libdir)/python$(PYTHON3_VERSION)/site-packages
+class Pkg(dev.CMakePkg):
 
-SETUP_PY_INSTALL_ARGS = \
-    --force \
-    --prefix=$(prefix) \
-    --install-lib=$(PYTHON_PKG_ROOT)
-ifneq ($(DESTDIR),)
-    SETUP_PY_INSTALL_ARGS += --root=$(DESTDIR)
-endif
+    __USE = []
 
-# See file config.mk.example.
--include config.mk
+    @property
+    def default_use_flags(self):
+        return super().default_use_flags + self.__USE
 
-PY_SCRIPTS := \
-    libdrm-configure \
-    mesa-configure \
-    piglit-configure \
-    prefix-env \
-    waffle-configure \
-    $@
+    @property
+    def configure_args(self):
+        args = super().configure_args + [
+            '-Dwaffle_build_examples=1',
+        ]
 
-.PHONY: all
-all:
-	@
+        self.use_enable(args, 'doc', 'waffle_build_htmldocs')
+        self.use_enable(args, 'doc', 'waffle_build_manpages')
 
-.PHONY: install
-install: install-egg install-py-scripts
-	@
-
-.PHONY: install-egg
-install-egg:
-	$(PYTHON3) make/setup.py install $(SETUP_PY_INSTALL_ARGS)
-
-.PHONY: install-py-scripts
-install-py-scripts:
-	@
-
-# func install-py-script
-#
-# params:
-# 	$(1): basename of a python script
-#
-define install-py-script
-install-py-scripts: $(DESTDIR)$(bindir)/$(1)
-
-# PHONY forces installation even if the installed file exists and is newer than
-# the source file.
-.PHONY: $(DESTDIR)$(bindir)/$(1)
-$(DESTDIR)$(bindir)/$(1): bin/$(1)
-	install -m755 -D $$< $$@
-	sed -i 's:@PYTHON_PKG_ROOT@:$$(PYTHON_PKG_ROOT):g' $$@
-endef
-
-$(foreach x,$(PY_SCRIPTS),$(eval $(call install-py-script,$(x))))
+        return args
