@@ -68,7 +68,6 @@ class Pkg(dev.AutotoolsPkg):
         args = super().configure_args
 
         args += [
-            '--disable-gallium-egl',
             '--disable-osmesa',
             '--disable-vdpau',
             '--disable-xa',
