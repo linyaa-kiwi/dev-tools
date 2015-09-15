@@ -63,12 +63,13 @@ try:
 except ImportError as e:
     die_import_error(e, 'chadv_dev_tools')
 
-m = re.match(r'(.*)-configure', PROG_NAME)
+m = re.match(r'(.*)-(configure|show-use-flags)', PROG_NAME)
 if m is None:
     err('unknown executable name')
     exit(1)
 
 mod_name = m.group(1)
+cmd_name = m.group(2)
 mod_absname = 'chadv_dev_tools.' + mod_name
 
 try:
@@ -76,5 +77,8 @@ try:
 except ImportError as e:
     die_import_error(e, mod_absname)
 
-# TODO: Support more commands than 'configure'.
-mod.Pkg().cmd_configure(sys.argv[1:])
+pkg = mod.Pkg()
+
+# Dispatch argv to the Pkg's method that matches cmd_name.
+cmd_func = getattr(pkg, 'cmd_{}'.format(cmd_name.replace('-', '_')))
+cmd_func(sys.argv[1:])

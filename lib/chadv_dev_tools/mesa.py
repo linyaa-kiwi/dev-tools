@@ -32,7 +32,7 @@ import chadv_dev_tools as dev
 
 class Pkg(dev.AutotoolsPkg):
 
-    USE = ['gbm', 'dri3', 'x11', 'wayland', 'surfaceless']
+    USE = ['+gbm', '+dri3', '+x11', '+wayland', '+surfaceless']
 
     def __with_egl_platforms(self):
         """Return '--with-egl-platforms=...'.

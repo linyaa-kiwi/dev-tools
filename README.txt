@@ -49,13 +49,27 @@ has no prefix, enables a particular project feature.
 
 Each project has a default list of USE flags defined in the Python variable
 lib/chadv_dev_tools/${project}.py:Pkg.USE. The list of USE flags defined in
-the environment modifies on the project's default list.
+the environment modifies on the project's default list. The script
+${project}-show-use-flags prints the USE flags that script ${project}-configure
+would use, as currently defined by the environment and the project's defaults.
 
 Example: Mesa
 -------------
 Suppose the default USE flags defined by lib/chadv_dev_tools/mesa.py is:
 
     USE=gbm,dri3,x11,wayland,surfaceless
+
+Verify the defaults:
+
+    $ mesa-show-use-flags
+    +gbm +dri3 +x11 +wayland +surfaceless
+
+Try temporarily disabling the 'dri3' USE flag:
+
+    $ USE="-dri3" mesa-show-use-flags
+    +gbm -dri3 +x11 +wayland +surfaceless
+    $ USE="" mesa-show-use-flags
+    +gbm +dri3 +x11 +wayland +surfaceless
 
 To disable DRI3 support when configuring Mesa, run:
 

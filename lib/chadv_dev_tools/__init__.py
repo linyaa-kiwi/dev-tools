@@ -28,14 +28,51 @@
 
 import os
 import os.path
+from copy import copy
 
 from subprocess import check_call
 
 class Pkg:
 
+    # Default USE flags shared by *all* packages
+    USE = ['-debug']
+
+    def __init__(self):
+        self.USE.extend(Pkg.USE)
+        self.__final_use_flags = None
+
     @property
     def src_dir(self):
         return os.getcwd()
+
+    @property
+    def final_use_flags(self):
+        if self.__final_use_flags is not None:
+            return self.__final_use_flags
+
+        final_flags = []
+        env_flags = os.environ.get('USE', '').split(',')
+
+        for default_flag in self.USE:
+            if default_flag[0] not in ('+', '-'):
+                raise Exception(("default use flag {!r} is not prefixed "
+                                 "with '+' or '-'".format(default_flag)))
+
+            # The flag stripped of its +/- prefix.
+            base_flag = default_flag[1:]
+
+            # Environment USE flags override default flags.
+            if (base_flag in env_flags) or ('+' + base_flag in env_flags):
+                final_flags.append('+' + base_flag)
+                continue
+            elif '-' + base_flag in env_flags:
+                final_flags.append('-' + base_flag)
+                continue
+            else:
+                final_flags.append(default_flag)
+
+        self.__final_use_flags = final_flags
+        return self.__final_use_flags
 
     def use_enable(self, configure_args, use_flag, enable_flag=None):
         """Append an enable option 'configure_args' if 'use_flag' is
@@ -45,20 +82,24 @@ class Pkg:
     def use(self, flag):
         """Return bool."""
 
-        env_flags = os.environ.get('USE', '').split(',')
+        # Flag must not be prefixed.
+        assert(flag[0] != '+')
+        assert(flag[0] != '-')
 
-        if flag in env_flags:
-            return True
-        elif '-' + flag in env_flags:
-            return False
-        elif flag in self.USE:
-            return True
-        else:
-            return False
+        for x in self.final_use_flags:
+            if x == flag or x == '+' + flag:
+                return True
+            elif x == '-' + flag:
+                return False
+
+        return False
 
     def configure_args(self):
         """Return [str]."""
         raise NotImplementedError
+
+    def cmd_show_use_flags(self, args=[]):
+        print(' '.join(self.final_use_flags))
 
     def cmd_configure(self, extra_args=[]):
         raise NotImplementedError
