@@ -32,10 +32,48 @@ location. If you prefer to install them, then:
         $ make install
 
 
-Turning on debug mode
-=====================
+USE flags
+=========
+The "USE" environment variable modifies the behavior of the configure scripts
+(such as 'mesa-configure'). Its value is a comma-separated list of flags,
+called "USE flags". This project borrowed the concept of USE flags from
+Gentoo's Portage buildsystem.
 
-Set the USE environment variable to "debug" before running any script.
+Some USE flags are common to all configure scripts, such as the "debug" flag.
+Some USE flags are specific to a particular set of projects, such as the "dri3"
+USE flag which affects only the configuration of projects that use DRI3.
+
+Each flag listed in the USE environment variable, if prefixed with "-",
+disables a particular project feature. Each flag, if prefixed with "+" or if it
+has no prefix, enables a particular project feature.
+
+Each project has a default list of USE flags defined in the Python variable
+lib/chadv_dev_tools/${project}.py:Pkg.__USE. The list of USE flags defined in
+the environment operates on the project's default list.
+
+Example: Mesa
+-------------
+Suppose the default USE flags defined by lib/chadv_dev_tools/mesa.py is:
+
+    USE=gbm,dri3,x11,wayland,surfaceless
+
+To disable DRI3 support when configuring Mesa, run:
+
+    $ USE="-dri3" mesa-configure
+
+To configure Mesa in debug mode (as opposed to release mode), and additionally
+disable support for DRI3 and EGL's surfaceless platform, run:
+
+    $ USE="debug,-dri3,-surfaceless" mesa-configure
+
+For Mesa, USE="debug" instructs mesa-configure to pass the following options to
+Mesa's Autoconf configure script:
+
+    * CFLAGS="-g3 -O0"
+    * CXXFLAGS="-g3 -O0"
+    * --enable-debug, which is a non-standard Autoconf option specific to Mesa
+
+
 
 Installing graphics libraries to a non-standard location
 ========================================================
