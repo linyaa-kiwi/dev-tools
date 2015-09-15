@@ -51,7 +51,12 @@ class Pkg:
             return self.__final_use_flags
 
         final_flags = []
-        env_flags = os.environ.get('USE', '').split(',')
+
+        # USE flags are space-separated.
+        env_flags = os.environ.get('USE', '').split(' ')
+
+        # Remove empty elements.
+        env_flags = list(filter(lambda x: len(x) > 0, env_flags))
 
         for default_flag in self.USE:
             if default_flag[0] not in ('+', '-'):

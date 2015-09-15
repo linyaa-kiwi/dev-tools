@@ -35,7 +35,7 @@ location. If you prefer to install them, then:
 USE flags
 =========
 The "USE" environment variable modifies the behavior of the configure scripts
-(such as 'mesa-configure'). Its value is a comma-separated list of flags,
+(such as 'mesa-configure'). Its value is a space-separated list of flags,
 called "USE flags". This project borrowed the concept of USE flags from
 Gentoo's Portage buildsystem.
 
@@ -57,7 +57,7 @@ Example: Mesa
 -------------
 Suppose the default USE flags defined by lib/chadv_dev_tools/mesa.py is:
 
-    USE=gbm,dri3,x11,wayland,surfaceless
+    USE="gbm dri3 x11 wayland surfaceless"
 
 Verify the defaults:
 
@@ -78,7 +78,7 @@ To disable DRI3 support when configuring Mesa, run:
 To configure Mesa in debug mode (as opposed to release mode), and additionally
 disable support for DRI3 and EGL's surfaceless platform, run:
 
-    $ USE="debug,-dri3,-surfaceless" mesa-configure
+    $ USE="debug -dri3,-surfaceless" mesa-configure
 
 For Mesa, USE="debug" instructs mesa-configure to pass the following options to
 Mesa's Autoconf configure script:
