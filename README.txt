@@ -92,54 +92,55 @@ Mesa's Autoconf configure script:
 Installing graphics libraries to a non-standard location
 ========================================================
 
--   Check which Mesa version you're running. Later, after installing a custom
-    Mesa, we'll verify the installation by confirming that the active Mesa
-    version has changed.
+- Check which Mesa version you're running. Later, after installing a custom
+  Mesa, we'll verify the installation by confirming that the active Mesa
+  version has changed.
 
-    $ glxinfo > /tmp/glxinfo-old.txt
-    $ grep Mesa /tmp/glxinfo-old.txt
+        $ glxinfo > /tmp/glxinfo-old.txt
+        $ grep Mesa /tmp/glxinfo-old.txt
 
--   Edit config.mk to have the prefix you want.
+- Edit config.mk to have the prefix you want.
 
--   Run
-    $ make; make install
+- Run
+        $ make; make install
 
-    If you look into your prefix bin directory, you should now see the
-    following:
+  If you look into your prefix bin directory, you should now see the following:
 
-    $ ls $PREFIX/bin/
-    libdrm-configure  mesa-configure  prefix-env  waffle-configure
+        $ ls $PREFIX/bin/
+        libdrm-configure  mesa-configure  prefix-env  waffle-configure
 
--   Run the script to set up all mesa environment variables with that
-    prefix, and execute a new bash environment:
+- Run the script to set up all mesa environment variables with that prefix, and
+  execute a new bash environment:
 
-    $ cd $PREFIX
+        $ cd $PREFIX
+        $ bin/prefix-env exec --prefix=$PREFIX bash
 
-    $ bin/prefix-env exec --prefix=$PREFIX bash
+  Or, if you want a debug build:
 
-    Or, if you want a debug build:
-    $ USE="debug" bin/prefix-env exec --prefix=$PREFIX bash
+        $ USE="debug" bin/prefix-env exec --prefix=$PREFIX bash
 
--   Change directories into your libdrm repository, and configure libdrm with the
-    libdrm-configure script:
+- Change directories into your libdrm repository, and configure libdrm with the
+  libdrm-configure script:
 
-    $ libdrm-configure --prefix=$PREFIX
+        $ libdrm-configure --prefix=$PREFIX
 
-    Or, if you want a debug build:
-    $ USE="debug" libdrm-configure --prefix=$PREFIX
+  Or, if you want a debug build:
 
-    Then `make; make install`.
+        $ USE="debug" libdrm-configure --prefix=$PREFIX
 
--   Change directories into your mesa repository, and configure mesa with the
-    mesa-configure script:
+  Then `make; make install`.
 
-    $ mesa-configure --prefix=$PREFIX
+- Change directories into your mesa repository, and configure mesa with the
+  mesa-configure script:
 
-    Or, if you want a debug build:
-    $ USE="debug" mesa-configure --prefix=$PREFIX
+        $ mesa-configure --prefix=$PREFIX
 
--   Confirm that the environment's Mesa version matches the version you
-    installed. It should differ from the Mesa version we checked earlier.
+  Or, if you want a debug build:
 
-    $ glxinfo > /tmp/glxinfo-new.txt
-    $ grep Mesa /tmp/glxinfo-new.txt
+        $ USE="debug" mesa-configure --prefix=$PREFIX
+
+- Confirm that the environment's Mesa version matches the version you
+  installed. It should differ from the Mesa version we checked earlier.
+
+        $ glxinfo > /tmp/glxinfo-new.txt
+        $ grep Mesa /tmp/glxinfo-new.txt
