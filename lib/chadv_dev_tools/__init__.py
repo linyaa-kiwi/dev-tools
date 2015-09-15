@@ -37,10 +37,6 @@ class Pkg:
     def src_dir(self):
         return os.getcwd()
 
-    @property
-    def default_use_flags(self):
-        return []
-
     def use_enable(self, configure_args, use_flag, enable_flag=None):
         """Append an enable option 'configure_args' if 'use_flag' is
         enabled."""
@@ -55,7 +51,7 @@ class Pkg:
             return True
         elif '-' + flag in env_flags:
             return False
-        elif flag in self.default_use_flags:
+        elif flag in self.USE:
             return True
         else:
             return False

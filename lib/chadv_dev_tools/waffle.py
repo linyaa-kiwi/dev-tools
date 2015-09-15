@@ -32,11 +32,7 @@ import chadv_dev_tools as dev
 
 class Pkg(dev.CMakePkg):
 
-    __USE = []
-
-    @property
-    def default_use_flags(self):
-        return super().default_use_flags + self.__USE
+    USE = []
 
     @property
     def configure_args(self):

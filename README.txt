@@ -48,8 +48,8 @@ disables a particular project feature. Each flag, if prefixed with "+" or if it
 has no prefix, enables a particular project feature.
 
 Each project has a default list of USE flags defined in the Python variable
-lib/chadv_dev_tools/${project}.py:Pkg.__USE. The list of USE flags defined in
-the environment operates on the project's default list.
+lib/chadv_dev_tools/${project}.py:Pkg.USE. The list of USE flags defined in
+the environment modifies on the project's default list.
 
 Example: Mesa
 -------------
