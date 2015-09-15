@@ -10,15 +10,27 @@ There are no stability guarantees here, other than "it works for me".
 
 How to Install
 ==============
-Configure:
+These scripts don't require installation. You can execute them directly from
+the git checkout. For example, suppose you have cloned Mesa to ~/src/mesa and
+these dev-tools to ~/src/chadv-dev-tools. Then you can configure Mesa with the
+mesa-configure script as follows:
 
-    $ cp config.mk.example config.mk
-    $ ed config.mk
+    $ cd ~/src/mesa
+    $ ~/src/chadv-dev-tools/mesa-configure
 
-Then build and install:
+However, these scripts also work correctly if executed from an installed
+location. If you prefer to install them, then:
 
-    $ make
-    $ make install
+    1. Configure:
+
+        $ cp config.mk.example config.mk
+        $ ed config.mk
+
+    2. Build and install:
+
+        $ make
+        $ make install
+
 
 Turning on debug mode
 =====================
