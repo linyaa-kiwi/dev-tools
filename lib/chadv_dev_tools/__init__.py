@@ -64,7 +64,7 @@ class Pkg:
         """Return [str]."""
         raise NotImplementedError
 
-    def configure(self, extra_args=[]):
+    def cmd_configure(self, extra_args=[]):
         raise NotImplementedError
 
 class AutotoolsPkg(Pkg):
@@ -100,7 +100,7 @@ class AutotoolsPkg(Pkg):
 
         return args
 
-    def configure(self, extra_args=[]):
+    def cmd_configure(self, extra_args=[]):
         if not os.path.exists(os.path.join(self.src_dir, 'configure')):
             check_call(['autoreconf', '-vfi'], cwd=self.src_dir)
 
@@ -140,6 +140,6 @@ class CMakePkg(Pkg):
 
         return args
 
-    def configure(self, extra_args=[]):
+    def cmd_configure(self, extra_args=[]):
         args = ['cmake'] + self.configure_args + extra_args + ['.']
         check_call(args, cwd=self.src_dir)

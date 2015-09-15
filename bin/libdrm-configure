@@ -77,4 +77,4 @@ except ImportError as e:
     die_import_error(e, mod_absname)
 
 # TODO: Support more commands than 'configure'.
-mod.Pkg().configure(sys.argv[1:])
+mod.Pkg().cmd_configure(sys.argv[1:])
