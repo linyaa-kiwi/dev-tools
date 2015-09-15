@@ -92,16 +92,16 @@ Mesa's Autoconf configure script:
 Installing graphics libraries to a non-standard location
 ========================================================
 
-0.  Check which Mesa version you're running. Later, after installing a custom
+-   Check which Mesa version you're running. Later, after installing a custom
     Mesa, we'll verify the installation by confirming that the active Mesa
     version has changed.
 
     $ glxinfo > /tmp/glxinfo-old.txt
     $ grep Mesa /tmp/glxinfo-old.txt
 
-1.  Edit config.mk to have the prefix you want.
+-   Edit config.mk to have the prefix you want.
 
-2.  Run
+-   Run
     $ make; make install
 
     If you look into your prefix bin directory, you should now see the
@@ -110,7 +110,7 @@ Installing graphics libraries to a non-standard location
     $ ls $PREFIX/bin/
     libdrm-configure  mesa-configure  prefix-env  waffle-configure
 
-3.  Run the script to set up all mesa environment variables with that
+-   Run the script to set up all mesa environment variables with that
     prefix, and execute a new bash environment:
 
     $ cd $PREFIX
@@ -120,7 +120,7 @@ Installing graphics libraries to a non-standard location
     Or, if you want a debug build:
     $ USE="debug" bin/prefix-env exec --prefix=$PREFIX bash
 
-4.  Change directories into your libdrm repository, and configure libdrm with the
+-   Change directories into your libdrm repository, and configure libdrm with the
     libdrm-configure script:
 
     $ libdrm-configure --prefix=$PREFIX
@@ -130,7 +130,7 @@ Installing graphics libraries to a non-standard location
 
     Then `make; make install`.
 
-5.  Change directories into your mesa repository, and configure mesa with the
+-   Change directories into your mesa repository, and configure mesa with the
     mesa-configure script:
 
     $ mesa-configure --prefix=$PREFIX
@@ -138,7 +138,7 @@ Installing graphics libraries to a non-standard location
     Or, if you want a debug build:
     $ USE="debug" mesa-configure --prefix=$PREFIX
 
-6.  Confirm that the environment's Mesa version matches the version you
+-   Confirm that the environment's Mesa version matches the version you
     installed. It should differ from the Mesa version we checked earlier.
 
     $ glxinfo > /tmp/glxinfo-new.txt
