@@ -92,6 +92,23 @@ Mesa's Autoconf configure script:
 Installing graphics libraries to a non-standard location
 ========================================================
 
+- If you have not already done so, place the devel scripts (mesa-configure,
+  libdrm-configure, etc) onto your environment's PATH.
+
+  If you wish to run the scripts directly from a git checkout, then:
+
+        $ export PATH="/path/to/chadv-dev-tools/bin:$PATH"
+
+  If you installed the scripts with `make install`, then these instructions
+  assume that your PATH is already setup correctly.
+
+  Before proceeding, confirm that the scripts lie on your PATH.
+
+        $ which mesa-configure
+        /some/path/to/mesa-configure
+        $ which prefix-env
+        /some/path/to/prefix-env
+
 - Check which Mesa version you're running. Later, after installing a custom
   Mesa, we'll verify the installation by confirming that the active Mesa
   version has changed.
@@ -99,48 +116,68 @@ Installing graphics libraries to a non-standard location
         $ glxinfo > /tmp/glxinfo-old.txt
         $ grep Mesa /tmp/glxinfo-old.txt
 
-- Edit config.mk to have the prefix you want.
+- Choose some prefix directory into which you will install the graphics
+  libraries. These instructions use the directory /opt/my-prefix, but any
+  directory will work.
 
-- Run
-        $ make; make install
+- Before building any libraries, we must setup the shell's environment to use
+  /opt/my-prefix. You could set all the needed environment variables manually.
+  But setting them manually is prone to error because (1) it's easy to overlook the
+  many variables that must be set and because (2) some variables, such as
+  LD_LIBRARY_PATH, when set in the obvious way will trigger subtle error-laden
+  easter eggs [1].
 
-  If you look into your prefix bin directory, you should now see the following:
+  First, inspect the changes that prefix-env will make to the shell's
+  environment:
 
-        $ ls $PREFIX/bin/
-        libdrm-configure  mesa-configure  prefix-env  waffle-configure
+        $ prefix-env eval --prefix=/opt/my-prefix
 
-- Run the script to set up all mesa environment variables with that prefix, and
-  execute a new bash environment:
+  If all looks good, then import the changes into the environment:
 
-        $ cd $PREFIX
-        $ bin/prefix-env exec --prefix=$PREFIX bash
+        $ eval $(prefix-env eval --prefix=/opt/my-prefix)
+
+- Next, we configure, build, and install libdrm.
+
+  Change directories into your libdrm repository, and configure libdrm with the
+  libdrm-configure script.
+
+        $ PREFIX=/opt/my-prefix libdrm-configure
 
   Or, if you want a debug build:
 
-        $ USE="debug" bin/prefix-env exec --prefix=$PREFIX bash
+        $ USE="debug" PREFIX=/opt/my-prefix libdrm-configure
 
-- Change directories into your libdrm repository, and configure libdrm with the
-  libdrm-configure script:
+  Each ${project}-configure script respects the USE and PREFIX environment
+  variables. The USE environment variable enables and disables configuration
+  options. The PREFIX environment variable defines the project's installation
+  location.
 
-        $ libdrm-configure --prefix=$PREFIX
+  Then build and install.
 
-  Or, if you want a debug build:
+        $ make
+        $ make install
 
-        $ USE="debug" libdrm-configure --prefix=$PREFIX
+- Next, we configure, build, and install Mesa.
 
-  Then `make; make install`.
-
-- Change directories into your mesa repository, and configure mesa with the
+  Change directories into your mesa repository, and configure mesa with the
   mesa-configure script:
 
-        $ mesa-configure --prefix=$PREFIX
+        $ PREFIX=/opt/my-prefix mesa-configure
 
   Or, if you want a debug build:
 
-        $ USE="debug" mesa-configure --prefix=$PREFIX
+        $ USE="debug" PREFIX=/opt/my-prefix mesa-configure
 
 - Confirm that the environment's Mesa version matches the version you
   installed. It should differ from the Mesa version we checked earlier.
 
         $ glxinfo > /tmp/glxinfo-new.txt
         $ grep Mesa /tmp/glxinfo-new.txt
+
+
+Footnotes
+==========
+[1]: When LD_LIBRARY_PATH is empty, then setting it with
+    `LD_LIBRARY_PATH=/some/path:${LD_LIBRARY_PATH}` can lead to unexpected
+    surprises.  When loading an executable, `ld` interprets the trailing, empty
+    path as the executable's working directory.
