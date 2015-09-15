@@ -92,9 +92,12 @@ Mesa's Autoconf configure script:
 Installing graphics libraries to a non-standard location
 ========================================================
 
-0.  Check which mesa version you're running:
+0.  Check which Mesa version you're running. Later, after installing a custom
+    Mesa, we'll verify the installation by confirming that the active Mesa
+    version has changed.
 
     $ glxinfo > /tmp/glxinfo-old.txt
+    $ grep Mesa /tmp/glxinfo-old.txt
 
 1.  Edit config.mk to have the prefix you want.
 
@@ -135,8 +138,8 @@ Installing graphics libraries to a non-standard location
     Or, if you want a debug build:
     $ USE="debug" mesa-configure --prefix=$PREFIX
 
-6.  Check which mesa version you're running:
+6.  Confirm that the environment's Mesa version matches the version you
+    installed. It should differ from the Mesa version we checked earlier.
 
     $ glxinfo > /tmp/glxinfo-new.txt
-
-    You should see that you're now running an updated version of mesa.
+    $ grep Mesa /tmp/glxinfo-new.txt
